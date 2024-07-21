@@ -99,5 +99,13 @@ namespace HMPSupply
 
         }
 
+        private void OnSetCurrentOnCh01(object sender, RoutedEventArgs e)
+        {
+            driver.BasicOperation.SelectedChannel = Output.Channel1;
+            driver.VoltageAndCurrent.OutputVoltageLevel = 2.0; // Voltage when the ARB is OFF
+            driver.VoltageAndCurrent.OutputCurrentLevel = 0.5;
+            //driver.VoltageAndCurrent.OverVoltageProtectionLevel = 11.0;
+        }
+
     }
 }

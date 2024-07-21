@@ -22,6 +22,8 @@ namespace HMPSupply.components
     public partial class gbVoltAndCurrent : UserControl
     {
 
+        const float EPSILON = 0.1f;
+
         // Using a DependencyProperty as the backing store for Title.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty HeaderProperty =
             DependencyProperty.Register("Header", typeof(object), typeof(gbVoltAndCurrent), new PropertyMetadata(string.Empty));
@@ -42,11 +44,26 @@ namespace HMPSupply.components
             set { SetValue(MainNameProperty, value); }
         }
 
+        public static readonly RoutedEvent SetCurrentOnChannelEvent =
+            EventManager.RegisterRoutedEvent(nameof(SetCurrentOnChannel), RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(gbVoltAndCurrent));
+
+        public event RoutedEventHandler SetCurrentOnChannel
+        {
+            add { AddHandler(SetCurrentOnChannelEvent, value);}
+            remove { RemoveHandler(SetCurrentOnChannelEvent, value); }
+        }
+
+        float prevTargetCurrent = (float)0.0;
+        float prevTargetVoltage = (float)0.0;
+        float targetCurrent = (float)0.0;
+        float targetVoltage = (float)0.0;
 
         public gbVoltAndCurrent()
         {
             InitializeComponent();
         }
+
+        #region Methods
         public void DisableChannelEdition()
         {
             this.IsEnabled = false;
@@ -55,6 +72,15 @@ namespace HMPSupply.components
             this.buCHXX_Set_Volt_Curr.IsEnabled = false;
             this.gbCHXX_I.IsEnabled = false;
             this.gbCHXX_U.IsEnabled = false;
+        }
+
+        #endregion
+
+        #region Events
+
+        private void OnSetCurrentOnChannel(object sneder, RoutedEventArgs e)
+        {
+            RaiseEvent(new RoutedEventArgs(SetCurrentOnChannelEvent));
         }
 
         private void cbCH01_Click(object sender, RoutedEventArgs e)
@@ -87,5 +113,171 @@ namespace HMPSupply.components
 
             Trace.WriteLine(string.Format("Click event on CH01: {0}", checkState));
         }
+
+        private void buCHXX_Set_Volt_Curr_Click(object sender, RoutedEventArgs e)
+        {
+            bool bChangedCurrent = !(ApproximatelyEqualEpsilon(prevTargetCurrent, targetCurrent, EPSILON));
+            bool bChangedVoltage = !(ApproximatelyEqualEpsilon(prevTargetVoltage, targetVoltage, EPSILON));
+
+            if (!(bChangedCurrent) && !(bChangedVoltage))
+            {
+                return;
+            }
+
+            if (bChangedCurrent)
+            {
+                OnSetCurrentOnChannel(null,null);
+            }
+
+            if(bChangedVoltage)
+            {
+                OnSetCurrentOnChannel(null, null);
+            }
+        }
+
+        #endregion
+
+        private void rBuCHXX_10V_Checked(object sender, RoutedEventArgs e)
+        {
+            if (rBuCHXX_10V.IsChecked == true)
+            {
+                prevTargetVoltage = targetVoltage;
+                targetVoltage = (float)1.0;
+            }
+        }
+
+        private void rBuCHXX_33V_Checked(object sender, RoutedEventArgs e)
+        {
+            if (rBuCHXX_33V.IsChecked == true)
+            {
+                prevTargetVoltage = targetVoltage;
+                targetVoltage = (float)3.3;
+            }
+        }
+
+        private void rBuCHXX_50V_Checked(object sender, RoutedEventArgs e)
+        {
+            if (rBuCHXX_50V.IsChecked == true)
+            {
+                prevTargetVoltage = targetVoltage;
+                targetVoltage = (float)5.0;
+            }
+        }
+
+        private void rBuCHXX_80V_Checked(object sender, RoutedEventArgs e)
+        {
+            if (rBuCHXX_80V.IsChecked == true)
+            {
+                prevTargetVoltage = targetVoltage;
+                targetVoltage = (float)8.0;
+            }
+        }
+
+        private void rBuCHXX_12V_Checked(object sender, RoutedEventArgs e)
+        {
+            if (rBuCHXX_12V.IsChecked == true)
+            {
+                prevTargetVoltage = targetVoltage;
+                targetVoltage = (float)12.0;
+            }
+        }
+
+        private void rBuCHXX_InputVol_Checked(object sender, RoutedEventArgs e)
+        {
+            if (rBuCHXX_InputVol.IsChecked == true)
+            {
+                prevTargetVoltage = targetVoltage;
+                float auxFloat_Volt = float.Parse(this.CHXX_InVol.Text, System.Globalization.CultureInfo.InvariantCulture);
+                if (auxFloat_Volt >= (float)0 && auxFloat_Volt <= (float)32.0)
+                {
+                    targetVoltage = auxFloat_Volt;
+                }
+            }
+        }
+
+        private void rBuCHXX_1A_Checked(object sender, RoutedEventArgs e)
+        {
+            if (rBuCHXX_1A.IsChecked == true)
+            {
+                prevTargetCurrent = targetCurrent;
+                targetCurrent = (float)1.0;
+            }
+        }
+
+        private void rBuCHXX_2A_Checked(object sender, RoutedEventArgs e)
+        {
+            if (rBuCHXX_2A.IsChecked == true)
+            {
+                prevTargetCurrent = targetCurrent;
+                targetCurrent = (float)2.0;
+            }
+        }
+
+        private void rBuCHXX_3A_Checked(object sender, RoutedEventArgs e)
+        {
+            if (rBuCHXX_3A.IsChecked == true)
+            {
+                prevTargetCurrent = targetCurrent;
+                targetCurrent = (float)3.0;
+            }
+        }
+
+        private void rBuCHXX_4A_Checked(object sender, RoutedEventArgs e)
+        {
+            if (rBuCHXX_4A.IsChecked == true)
+            {
+                prevTargetCurrent = targetCurrent;
+                targetCurrent = (float)4.0;
+            }
+        }
+
+        private void rBuCHXX_8A_Checked(object sender, RoutedEventArgs e)
+        {
+            if (rBuCHXX_8A.IsChecked == true)
+            {
+                prevTargetCurrent = targetCurrent;
+                targetCurrent = (float)8.0;
+            }
+
+        }
+
+        private void rBuCHXX_InputCurr_Checked(object sender, RoutedEventArgs e)
+        {
+            if (rBuCHXX_InputVol.IsChecked == true)
+            {
+                prevTargetCurrent = targetCurrent;
+
+                float auxFloat_Current = float.Parse(this.CHXX_InCurr.Text, System.Globalization.CultureInfo.InvariantCulture);
+
+                if (auxFloat_Current >= (float)0 && auxFloat_Current <= (float)10.0)
+                {
+                    targetCurrent = auxFloat_Current;
+                }
+            }
+        }
+        public static bool ApproximatelyEqualEpsilon(float a, float b, float epsilon)
+        {
+            const float floatNormal = (1 << 23) * float.Epsilon;
+            float absA = Math.Abs(a);
+            float absB = Math.Abs(b);
+            float diff = Math.Abs(a - b);
+
+            if (a == b)
+            {
+                // Shortcut, handles infinities
+                return true;
+            }
+
+            if (a == 0.0f || b == 0.0f || diff < floatNormal)
+            {
+                // a or b is zero, or both are extremely close to it.
+                // relative error is less meaningful here
+                return diff < (epsilon * floatNormal);
+            }
+
+            // use relative error
+            return diff / Math.Min((absA + absB), float.MaxValue) < epsilon;
+        }
     }
+
 }

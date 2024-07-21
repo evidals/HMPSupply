@@ -31,7 +31,7 @@
                 <Button x:Name="buSend" Content="Send" HorizontalAlignment="Left" Margin="12,4,0,0" VerticalAlignment="Top" Width="54" Height="20"/>
             </StackPanel>
             <StackPanel Height="202" Orientation="Horizontal" Grid.Row="0" Grid.Column="1" VerticalAlignment="Top">
-                <components:gbVoltAndCurrent x:Name="gbCH01" MainName="CH_01"/>
+                <components:gbVoltAndCurrent x:Name="gbCH01" MainName="CH_01" SetCurrentOnChannel="OnSetCurrentOnCh01"/>
                 <components:gbVoltAndCurrent x:Name="gbCH02" MainName="CH_02"/>
                 <components:gbVoltAndCurrent x:Name="gbCH03" MainName="CH_03"/>
                 <components:gbVoltAndCurrent x:Name="gbCH04" MainName="CH_04"/>
