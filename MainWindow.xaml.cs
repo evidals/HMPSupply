@@ -59,48 +59,30 @@ namespace HMPSupply
 
         private void EnableChannelEdition()
         {
-            //gbCH01.IsEnabled = true;
+            gbCH01.IsEnabled = true;
             gbCH02.IsEnabled = true;
             gbCH03.IsEnabled = true;
             gbCH04.IsEnabled = true;
 
-            //cbCH01.IsEnabled = true;
-            cbCH02.IsEnabled = true;
-            cbCH03.IsEnabled = true;
-            cbCH04.IsEnabled = true;
+            gbCH01.cbCHXX.IsEnabled = true;
+            gbCH02.cbCHXX.IsEnabled = true;
+            gbCH03.cbCHXX.IsEnabled = true;
+            gbCH04.cbCHXX.IsEnabled = true;
         }
 
         private void DisableCheckValuesOnAllChannels()
         {
-            //cbCH01.IsChecked = false;
-            //cbCH01.IsChecked = false;
-            //cbCH01.IsChecked = false;
-            //cbCH01.IsChecked = false;
+            gbCH01.cbCHXX.IsChecked = false;
+            gbCH02.cbCHXX.IsChecked = false;
+            gbCH03.cbCHXX.IsChecked = false;
+            gbCH04.cbCHXX.IsChecked = false;
         }
         private void DisableChannelEdition()
         {
-            //gbCH01.IsEnabled = false;
-            gbCH02.IsEnabled = false;
-            gbCH03.IsEnabled = false;
-            gbCH04.IsEnabled = false;
-
-            //cbCH01.IsEnabled = false;
-            cbCH02.IsEnabled = false;
-            cbCH03.IsEnabled = false;
-            cbCH04.IsEnabled = false;
-
-            //buCH01_Read_Volt_Curr.IsEnabled = false;
-            buCH02_Read_Volt_Curr.IsEnabled = false;
-            buCH03_Read_Volt_Curr.IsEnabled = false;
-            buCH04_Read_Volt_Curr.IsEnabled = false;
-
-            //buCH01_Set_Volt_Curr.IsEnabled = false;
-            buCH02_Set_Volt_Curr.IsEnabled = false;
-            buCH03_Set_Volt_Curr.IsEnabled = false;
-            buCH04_Set_Volt_Curr.IsEnabled = false;
-
-            //gbCH01_U.IsEnabled = false;
-            //gbCH01_I.IsEnabled = false;
+            gbCH01.DisableChannelEdition();
+            gbCH02.DisableChannelEdition();
+            gbCH03.DisableChannelEdition();
+            gbCH04.DisableChannelEdition();
         }
 
         private void TurnOffLedIndicator()
@@ -117,35 +99,5 @@ namespace HMPSupply
 
         }
 
-        //private void cbCH01_Click(object sender, RoutedEventArgs e)
-        //{
-        //    CheckBox cb = sender as CheckBox;
-        //    string checkState = string.Empty;
-        //    if (!cb.IsChecked.HasValue)
-        //    {
-        //        checkState = "Indeterminate";
-        //    }
-        //    else
-        //    {
-        //        checkState = (true == cb.IsChecked) ? "Checked" : "Unchecked";
-
-        //        if (!cbCH01.IsChecked.Value)
-        //        {
-        //            buCH01_Read_Volt_Curr.IsEnabled = false;
-        //            buCH01_Set_Volt_Curr.IsEnabled = false;
-        //            gbCH01_U.IsEnabled = false;
-        //            gbCH01_I.IsEnabled = false;
-        //        }
-        //        else
-        //        {
-        //            buCH01_Read_Volt_Curr.IsEnabled = true;
-        //            buCH01_Set_Volt_Curr.IsEnabled = true;
-        //            gbCH01_U.IsEnabled = true;
-        //            gbCH01_I.IsEnabled = true;
-        //        }
-        //    }
-
-        //    Trace.WriteLine(string.Format("Click event on CH01: {0}", checkState));
-        //}
     }
 }

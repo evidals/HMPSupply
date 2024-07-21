@@ -22,22 +22,39 @@ namespace HMPSupply.components
     public partial class gbVoltAndCurrent : UserControl
     {
 
+        // Using a DependencyProperty as the backing store for Title.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty HeaderProperty =
+            DependencyProperty.Register("Header", typeof(object), typeof(gbVoltAndCurrent), new PropertyMetadata(string.Empty));
 
-        public string Title
+        public object Header
         {
-            get { return (string)GetValue(TitleProperty); }
-            set { SetValue(TitleProperty, value); }
+            get { return GetValue(HeaderProperty); }
+            set { SetValue(HeaderProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for Title.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty TitleProperty =
-            DependencyProperty.Register("Title", typeof(string), typeof(gbVoltAndCurrent), new PropertyMetadata(string.Empty));
 
+        public static readonly DependencyProperty MainNameProperty =
+            DependencyProperty.Register("MainName", typeof(string), typeof(gbVoltAndCurrent), new PropertyMetadata(string.Empty));
+
+        public string MainName
+        {
+            get { return (string)GetValue(MainNameProperty); }
+            set { SetValue(MainNameProperty, value); }
+        }
 
 
         public gbVoltAndCurrent()
         {
             InitializeComponent();
+        }
+        public void DisableChannelEdition()
+        {
+            this.IsEnabled = false;
+            this.cbCHXX.IsEnabled = false;
+            this.buCHXX_Read_Volt_Curr.IsEnabled = false;
+            this.buCHXX_Set_Volt_Curr.IsEnabled = false;
+            this.gbCHXX_I.IsEnabled = false;
+            this.gbCHXX_U.IsEnabled = false;
         }
 
         private void cbCH01_Click(object sender, RoutedEventArgs e)
@@ -52,19 +69,19 @@ namespace HMPSupply.components
             {
                 checkState = (true == cb.IsChecked) ? "Checked" : "Unchecked";
 
-                if (!cbCH01.IsChecked.Value)
+                if (!cbCHXX.IsChecked.Value)
                 {
-                    buCH01_Read_Volt_Curr.IsEnabled = false;
-                    buCH01_Set_Volt_Curr.IsEnabled = false;
-                    gbCH01_U.IsEnabled = false;
-                    gbCH01_I.IsEnabled = false;
+                    buCHXX_Read_Volt_Curr.IsEnabled = false;
+                    buCHXX_Set_Volt_Curr.IsEnabled = false;
+                    gbCHXX_U.IsEnabled = false;
+                    gbCHXX_I.IsEnabled = false;
                 }
                 else
                 {
-                    buCH01_Read_Volt_Curr.IsEnabled = true;
-                    buCH01_Set_Volt_Curr.IsEnabled = true;
-                    gbCH01_U.IsEnabled = true;
-                    gbCH01_I.IsEnabled = true;
+                    buCHXX_Read_Volt_Curr.IsEnabled = true;
+                    buCHXX_Set_Volt_Curr.IsEnabled = true;
+                    gbCHXX_U.IsEnabled = true;
+                    gbCHXX_I.IsEnabled = true;
                 }
             }
 
