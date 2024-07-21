@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HMPSupply", "HMPSupply.csproj", "{EA0FA528-E3B0-4905-BF82-AB6CA736403B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EA0FA528-E3B0-4905-BF82-AB6CA736403B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA0FA528-E3B0-4905-BF82-AB6CA736403B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA0FA528-E3B0-4905-BF82-AB6CA736403B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA0FA528-E3B0-4905-BF82-AB6CA736403B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5429ADE0-EF11-4226-A297-437474E032E8}
+	EndGlobalSection
+EndGlobal
