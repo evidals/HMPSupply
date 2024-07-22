@@ -16,6 +16,7 @@ using RohdeSchwarz.Hmp4000; //If missing, add the reference from:
 using Ivi.Driver;
 using System.Diagnostics;
 using HMPSupply.components;
+using Utils;
 
 namespace HMPSupply
 {
@@ -102,10 +103,42 @@ namespace HMPSupply
         private void OnSetCurrentOnCh01(object sender, RoutedEventArgs e)
         {
             driver.BasicOperation.SelectedChannel = Output.Channel1;
-            driver.VoltageAndCurrent.OutputVoltageLevel = 2.0; // Voltage when the ARB is OFF
-            driver.VoltageAndCurrent.OutputCurrentLevel = 0.5;
-            //driver.VoltageAndCurrent.OverVoltageProtectionLevel = 11.0;
+
+            bool bChangedVoltage = !(MathUtilities.ApproximatelyEqualEpsilon(gbCH01.PrevTargetVoltage, gbCH01.TargetVoltage, gbCH01.Delta));
+            bool bChangedCurrent = !(MathUtilities.ApproximatelyEqualEpsilon(gbCH01.PrevTargetCurrent, gbCH01.TargetCurrent, gbCH01.Delta));
+
+            if (!bChangedVoltage && !bChangedCurrent)
+            {
+                return;
+            }
+
+            if (bChangedVoltage)
+            {
+                driver.VoltageAndCurrent.OutputVoltageLevel = gbCH01.TargetVoltage;
+                gbCH01.PrevTargetVoltage = gbCH01.TargetVoltage;
+            }
+
+            if (bChangedCurrent)
+            {
+                driver.VoltageAndCurrent.OutputCurrentLevel = gbCH01.TargetCurrent;
+                gbCH01.PrevTargetCurrent= gbCH01.TargetCurrent;
+            }
+            driver.BasicOperation.SelectedChannel = Output.Channel1;
         }
 
+        private void OnReadVoltageAndCurrentOnCH01(object sender, RoutedEventArgs e)
+        {
+            gbCH01.TargetVoltage = (float)driver.VoltageAndCurrent.OutputVoltageLevel;
+            gbCH01.TargetCurrent = (float)driver.VoltageAndCurrent.OutputCurrentLevel;
+        }
+    }
+
+    public enum eCHANNEL : int
+    {
+        CH01 = 0,
+        CH02 = 1,
+        CH03 = 2,
+        CH04 = 3,
+        None = -1,
     }
 }
