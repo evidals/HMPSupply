@@ -128,8 +128,21 @@ namespace HMPSupply
 
         private void OnReadVoltageAndCurrentOnCH01(object sender, RoutedEventArgs e)
         {
-            gbCH01.TargetVoltage = (float)driver.VoltageAndCurrent.OutputVoltageLevel;
-            gbCH01.TargetCurrent = (float)driver.VoltageAndCurrent.OutputCurrentLevel;
+            bool bChangedVoltage = !(MathUtilities.ApproximatelyEqualEpsilon(gbCH01.TargetVoltage, (float)driver.VoltageAndCurrent.OutputVoltageLevel, gbCH01.Delta));
+            bool bChangedCurrent = !(MathUtilities.ApproximatelyEqualEpsilon(gbCH01.TargetCurrent, (float)driver.VoltageAndCurrent.OutputCurrentLevel, gbCH01.Delta));
+
+            if(!bChangedVoltage) 
+            {
+                gbCH01.TargetVoltage = (float)driver.VoltageAndCurrent.OutputVoltageLevel;
+                gbCH01.UpdateSelectedVoltage();
+
+            }
+            if (bChangedCurrent)
+            {
+                gbCH01.TargetCurrent = (float)driver.VoltageAndCurrent.OutputCurrentLevel;
+                gbCH01.UpdateSelectedCurrent();
+            }
+
         }
     }
 

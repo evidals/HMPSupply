@@ -68,6 +68,8 @@ namespace HMPSupply.components
         float prevTargetVoltage = (float)0.0;
         float targetCurrent = (float)0.0;
         float targetVoltage = (float)0.0;
+        eSEL_U eSelVoltage = eSEL_U.None;
+        eSEL_I eSelCurrent = eSEL_I.None;
 
         #endregion
 
@@ -301,5 +303,69 @@ namespace HMPSupply.components
                 }
             }
         }
+
+        public void UpdateSelectedVoltage()
+        {
+            switch (eSelVoltage)
+            {
+                case eSEL_U.IS_1V:
+                    break;
+                case eSEL_U.IS_3p3V:
+                    break;
+                case eSEL_U.IS_5V:
+                    break;
+                case eSEL_U.IS_8V:
+                    break;
+                case eSEL_U.IS_12V:
+                    break;
+                case eSEL_U.IS_UserInput:
+                    break;
+                case eSEL_U.None:
+                    break;
+            }
+        }
+
+        public void UpdateSelectedCurrent()
+        {
+            switch (eSelCurrent)
+            {
+                case eSEL_I.IS_1A:
+                    break;
+                case eSEL_I.IS_2A:
+                    break;
+                case eSEL_I.IS_3A:
+                    break;
+                case eSEL_I.IS_4A:
+                    break;
+                case eSEL_I.IS_8A:
+                    break;
+                case eSEL_I.IS_UserInput:
+                    break;
+                case eSEL_I.None:
+                    break;
+            }
+        }
+    }
+
+    public enum eSEL_U : int
+    {
+        IS_1V   = 0,
+        IS_3p3V = 1,
+        IS_5V   = 2,
+        IS_8V   = 3,
+        IS_12V  = 4,
+        IS_UserInput = 5,
+        None = -1,
+    }
+
+    public enum eSEL_I : int
+    {
+        IS_1A = 0,
+        IS_2A = 1,
+        IS_3A = 2,
+        IS_4A = 3,
+        IS_8A = 4,
+        IS_UserInput = 5,
+        None = -1,
     }
 }
