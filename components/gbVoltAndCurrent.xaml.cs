@@ -22,7 +22,23 @@ namespace HMPSupply.components
     /// </summary>
     public partial class gbVoltAndCurrent : UserControl
     {
-        const float EPSILON = 0.1f;
+        const float EPSILON                     = 0.001f;
+        const float ZERO_F                      = 0.0f;
+
+        const float ONE_VOLT_F                  = 1.0f;
+        const float THREE_POINT_THREE_VOLT_F    = 3.3f;
+        const float FIVE_VOLT_F                 = 5.0f;
+        const float EIGHT_VOLT_F                = 8.0f;
+        const float TWELVE_VOLT_F               = 12.0f;
+        const float MAX_VOLT_F                  = 32.0f;
+
+        const float ONE_AMP_F                   = 1.0f;
+        const float TWO_AMP_F                   = 2.0f;
+        const float THREE_AMP_F                 = 3.0f;
+        const float FOUR_AMP_F                  = 4.0f;
+        const float EIGHT_AMP_F                 = 8.0f;
+        const float MAX_AMP_F                   = 10.0f;
+
 
         // Using a DependencyProperty as the backing store for Title.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty HeaderProperty =
@@ -68,8 +84,8 @@ namespace HMPSupply.components
         float prevTargetVoltage = (float)0.0;
         float targetCurrent = (float)0.0;
         float targetVoltage = (float)0.0;
-        eSEL_U eSelVoltage = eSEL_U.None;
-        eSEL_I eSelCurrent = eSEL_I.None;
+        eSEL_U eSelectedVoltage = eSEL_U.None;
+        eSEL_I eSelectedCurrent = eSEL_I.None;
 
         #endregion
 
@@ -202,7 +218,7 @@ namespace HMPSupply.components
         {
             if (rBuCHXX_10V.IsChecked == true)
             {
-                targetVoltage = (float)1.0;
+                targetVoltage = ONE_VOLT_F;
             }
         }
 
@@ -210,7 +226,7 @@ namespace HMPSupply.components
         {
             if (rBuCHXX_33V.IsChecked == true)
             {
-                targetVoltage = (float)3.3;
+                targetVoltage = THREE_POINT_THREE_VOLT_F;
             }
         }
 
@@ -218,7 +234,7 @@ namespace HMPSupply.components
         {
             if (rBuCHXX_50V.IsChecked == true)
             {
-                targetVoltage = (float)5.0;
+                targetVoltage = FIVE_VOLT_F;
             }
         }
 
@@ -226,7 +242,7 @@ namespace HMPSupply.components
         {
             if (rBuCHXX_80V.IsChecked == true)
             {
-                targetVoltage = (float)8.0;
+                targetVoltage = EIGHT_VOLT_F;
             }
         }
 
@@ -234,7 +250,7 @@ namespace HMPSupply.components
         {
             if (rBuCHXX_12V.IsChecked == true)
             {
-                targetVoltage = (float)12.0;
+                targetVoltage = TWELVE_VOLT_F;
             }
         }
 
@@ -243,9 +259,18 @@ namespace HMPSupply.components
             if (rBuCHXX_InputVol.IsChecked == true)
             {
                 float auxFloat_Volt = float.Parse(this.CHXX_InVol.Text, System.Globalization.CultureInfo.InvariantCulture);
-                if (auxFloat_Volt >= (float)0 && auxFloat_Volt <= (float)32.0)
+                
+                if (auxFloat_Volt >= ZERO_F && auxFloat_Volt <= MAX_VOLT_F)
                 {
                     targetVoltage = auxFloat_Volt;
+                }
+                else if (auxFloat_Volt > MAX_VOLT_F)
+                {
+                    targetVoltage = MAX_VOLT_F;
+                }
+                else
+                {
+                    targetVoltage = ZERO_F;
                 }
             }
         }
@@ -254,7 +279,7 @@ namespace HMPSupply.components
         {
             if (rBuCHXX_1A.IsChecked == true)
             {
-                targetCurrent = (float)1.0;
+                targetCurrent = ONE_AMP_F;
             }
         }
 
@@ -262,7 +287,7 @@ namespace HMPSupply.components
         {
             if (rBuCHXX_2A.IsChecked == true)
             {
-                targetCurrent = (float)2.0;
+                targetCurrent = TWO_AMP_F;
             }
         }
 
@@ -270,7 +295,7 @@ namespace HMPSupply.components
         {
             if (rBuCHXX_3A.IsChecked == true)
             {
-                targetCurrent = (float)3.0;
+                targetCurrent = THREE_AMP_F;
             }
         }
 
@@ -278,7 +303,7 @@ namespace HMPSupply.components
         {
             if (rBuCHXX_4A.IsChecked == true)
             {
-                targetCurrent = (float)4.0;
+                targetCurrent = FOUR_AMP_F;
             }
         }
 
@@ -286,7 +311,7 @@ namespace HMPSupply.components
         {
             if (rBuCHXX_8A.IsChecked == true)
             {
-                targetCurrent = (float)8.0;
+                targetCurrent = EIGHT_AMP_F;
             }
 
         }
@@ -297,52 +322,88 @@ namespace HMPSupply.components
             {
                 float auxFloat_Current = float.Parse(this.CHXX_InCurr.Text, System.Globalization.CultureInfo.InvariantCulture);
 
-                if (auxFloat_Current >= (float)0 && auxFloat_Current <= (float)10.0)
+                if (auxFloat_Current >= ZERO_F && auxFloat_Current <= MAX_AMP_F)
                 {
                     targetCurrent = auxFloat_Current;
+                }
+                else if (auxFloat_Current > MAX_AMP_F)
+                {
+                    targetCurrent = MAX_AMP_F;
+                }
+                else
+                {
+                    targetCurrent = ZERO_F;
                 }
             }
         }
 
         public void UpdateSelectedVoltage()
         {
-            switch (eSelVoltage)
+            if ((MathUtilities.ApproximatelyEqualEpsilon(targetVoltage, ONE_VOLT_F, EPSILON)))
             {
-                case eSEL_U.IS_1V:
-                    break;
-                case eSEL_U.IS_3p3V:
-                    break;
-                case eSEL_U.IS_5V:
-                    break;
-                case eSEL_U.IS_8V:
-                    break;
-                case eSEL_U.IS_12V:
-                    break;
-                case eSEL_U.IS_UserInput:
-                    break;
-                case eSEL_U.None:
-                    break;
+                eSelectedVoltage = eSEL_U.IS_1V;
+                rBuCHXX_10V.IsChecked = true;
+            }
+            else if ((MathUtilities.ApproximatelyEqualEpsilon(targetVoltage, THREE_POINT_THREE_VOLT_F, EPSILON)))
+            {
+                eSelectedVoltage = eSEL_U.IS_3p3V;
+                rBuCHXX_33V.IsChecked = true;
+            }
+            else if ((MathUtilities.ApproximatelyEqualEpsilon(targetVoltage, FIVE_VOLT_F, EPSILON)))
+            {
+                eSelectedVoltage = eSEL_U.IS_5V;
+                rBuCHXX_50V.IsChecked = true;
+            }
+            else if ((MathUtilities.ApproximatelyEqualEpsilon(targetVoltage, EIGHT_VOLT_F, EPSILON)))
+            {
+                eSelectedVoltage = eSEL_U.IS_8V;
+                rBuCHXX_80V.IsChecked = true;
+            }
+            else if ((MathUtilities.ApproximatelyEqualEpsilon(targetVoltage, TWELVE_VOLT_F, EPSILON)))
+            {
+                eSelectedVoltage = eSEL_U.IS_12V;
+                rBuCHXX_12V.IsChecked = true;
+            }
+            else 
+            {
+                eSelectedVoltage = eSEL_U.IS_UserInput;
+                rBuCHXX_InputVol.IsChecked = true;
+                CHXX_InVol.Text = string.Format("{0:N3}", targetVoltage);
             }
         }
 
         public void UpdateSelectedCurrent()
         {
-            switch (eSelCurrent)
+            if ((MathUtilities.ApproximatelyEqualEpsilon(targetCurrent, ONE_AMP_F, EPSILON)))
             {
-                case eSEL_I.IS_1A:
-                    break;
-                case eSEL_I.IS_2A:
-                    break;
-                case eSEL_I.IS_3A:
-                    break;
-                case eSEL_I.IS_4A:
-                    break;
-                case eSEL_I.IS_8A:
-                    break;
-                case eSEL_I.IS_UserInput:
-                    break;
-                case eSEL_I.None:
-                    break;
+                eSelectedCurrent = eSEL_I.IS_1A;
+                rBuCHXX_1A.IsChecked = true;
+            }
+            else if ((MathUtilities.ApproximatelyEqualEpsilon(targetCurrent, TWO_AMP_F, EPSILON)))
+            {
+                eSelectedCurrent = eSEL_I.IS_2A;
+                rBuCHXX_2A.IsChecked = true;
+            }
+            else if ((MathUtilities.ApproximatelyEqualEpsilon(targetCurrent, THREE_AMP_F, EPSILON)))
+            {
+                eSelectedCurrent = eSEL_I.IS_3A;
+                rBuCHXX_3A.IsChecked = true;
+            }
+            else if ((MathUtilities.ApproximatelyEqualEpsilon(targetCurrent, FOUR_AMP_F, EPSILON)))
+            {
+                eSelectedCurrent = eSEL_I.IS_4A;
+                rBuCHXX_4A.IsChecked = true;
+            }
+            else if ((MathUtilities.ApproximatelyEqualEpsilon(targetCurrent, EIGHT_AMP_F, EPSILON)))
+            {
+                eSelectedCurrent = eSEL_I.IS_8A;
+                rBuCHXX_8A.IsChecked = true;
+            }
+            else
+            {
+                eSelectedCurrent = eSEL_I.IS_UserInput;
+                rBuCHXX_InputCurr.IsChecked = true;
+                CHXX_InCurr.Text = string.Format("{0:N3}", targetCurrent);
             }
         }
     }

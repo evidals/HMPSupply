@@ -17,6 +17,7 @@ using Ivi.Driver;
 using System.Diagnostics;
 using HMPSupply.components;
 using Utils;
+using System.Diagnostics.Eventing.Reader;
 
 namespace HMPSupply
 {
@@ -25,7 +26,8 @@ namespace HMPSupply
     /// </summary>
     public partial class MainWindow : Window
     {
-
+        // this enum can be bound on namespace RohdeSchwarz.Hmp4000
+        Channel on_use_ch = Channel.NotUsed;
         Hmp4000 driver;
 
         public MainWindow()
@@ -41,7 +43,7 @@ namespace HMPSupply
             try
             {
                 string sLAN = "TCPIP::" + tbHost.Text + "::" + tbPort.Text + "::SOCKET";
-                driver = new Hmp4000(sLAN, false, true);
+                driver = new Hmp4000(sLAN, false, false);
                 tbStatus.Text += "finished.\n";
                 tbStatus.Text += "Instrument ID: " + driver.System.IDQueryResponse + "\n";
                 var selftestResult = driver.System.SelfTest();
@@ -114,14 +116,36 @@ namespace HMPSupply
 
             if (bChangedVoltage)
             {
-                driver.VoltageAndCurrent.OutputVoltageLevel = gbCH01.TargetVoltage;
-                gbCH01.PrevTargetVoltage = gbCH01.TargetVoltage;
+                driver.VoltageAndCurrent.OutputVoltageLevel = (double)gbCH01.TargetVoltage;
+                if (false == MathUtilities.ApproximatelyEqualEpsilon(gbCH01.TargetVoltage, (float)driver.VoltageAndCurrent.OutputVoltageLevel, gbCH01.Delta))
+                {
+                    //max.power have been exceed 160W max.
+                    gbCH01.PrevTargetVoltage = gbCH01.TargetVoltage;
+                    gbCH01.TargetVoltage = (float)driver.VoltageAndCurrent.OutputVoltageLevel;
+                }
+                else
+                {
+                    gbCH01.PrevTargetVoltage = gbCH01.TargetVoltage;
+                }
+
+                gbCH01.UpdateSelectedVoltage();
             }
 
             if (bChangedCurrent)
             {
-                driver.VoltageAndCurrent.OutputCurrentLevel = gbCH01.TargetCurrent;
-                gbCH01.PrevTargetCurrent= gbCH01.TargetCurrent;
+                driver.VoltageAndCurrent.OutputCurrentLevel = (double)gbCH01.TargetCurrent;
+                if (false == MathUtilities.ApproximatelyEqualEpsilon(gbCH01.TargetCurrent, (float)driver.VoltageAndCurrent.OutputCurrentLevel, gbCH01.Delta))
+                {
+                    //max.power have been exceed 160W max.
+                    gbCH01.PrevTargetCurrent = gbCH01.TargetCurrent;
+                    gbCH01.TargetCurrent = (float)driver.VoltageAndCurrent.OutputCurrentLevel;
+                }
+                else
+                {
+                    gbCH01.PrevTargetCurrent = gbCH01.TargetCurrent;
+                }
+
+                gbCH01.UpdateSelectedCurrent();
             }
             driver.BasicOperation.SelectedChannel = Output.Channel1;
         }
@@ -131,7 +155,7 @@ namespace HMPSupply
             bool bChangedVoltage = !(MathUtilities.ApproximatelyEqualEpsilon(gbCH01.TargetVoltage, (float)driver.VoltageAndCurrent.OutputVoltageLevel, gbCH01.Delta));
             bool bChangedCurrent = !(MathUtilities.ApproximatelyEqualEpsilon(gbCH01.TargetCurrent, (float)driver.VoltageAndCurrent.OutputCurrentLevel, gbCH01.Delta));
 
-            if(!bChangedVoltage) 
+            if(bChangedVoltage) 
             {
                 gbCH01.TargetVoltage = (float)driver.VoltageAndCurrent.OutputVoltageLevel;
                 gbCH01.UpdateSelectedVoltage();
@@ -144,14 +168,5 @@ namespace HMPSupply
             }
 
         }
-    }
-
-    public enum eCHANNEL : int
-    {
-        CH01 = 0,
-        CH02 = 1,
-        CH03 = 2,
-        CH04 = 3,
-        None = -1,
     }
 }
