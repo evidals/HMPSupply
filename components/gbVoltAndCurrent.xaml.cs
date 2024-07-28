@@ -39,6 +39,9 @@ namespace HMPSupply.components
         const float EIGHT_AMP_F                 = 8.0f;
         const float MAX_AMP_F                   = 10.0f;
 
+        bool bChIsActive = false;
+        bool bChOutputEnabled = false;
+
 
         // Using a DependencyProperty as the backing store for Title.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty HeaderProperty =
@@ -49,7 +52,6 @@ namespace HMPSupply.components
             get { return GetValue(HeaderProperty); }
             set { SetValue(HeaderProperty, value); }
         }
-
 
         public static readonly DependencyProperty MainNameProperty =
             DependencyProperty.Register("MainName", typeof(string), typeof(gbVoltAndCurrent), new PropertyMetadata(string.Empty));
@@ -78,6 +80,25 @@ namespace HMPSupply.components
             remove { RemoveHandler(SetCurrentOnChannelEvent, value); }
         }
 
+        public static readonly RoutedEvent EnableChannelOnChannelEvent =
+            EventManager.RegisterRoutedEvent(nameof(EnableCH_OnChannel), RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(gbVoltAndCurrent));
+
+        public event RoutedEventHandler EnableCH_OnChannel
+        {
+            add { AddHandler(EnableChannelOnChannelEvent, value); }
+            remove { RemoveHandler(EnableChannelOnChannelEvent, value); }
+        }
+
+        public static readonly RoutedEvent EnableOutputOnChannelEvent =
+            EventManager.RegisterRoutedEvent(nameof(EnableOutputOnChannel), RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(gbVoltAndCurrent));
+
+        public event RoutedEventHandler EnableOutputOnChannel
+        {
+            add { AddHandler(EnableOutputOnChannelEvent, value); }
+            remove { RemoveHandler(EnableOutputOnChannelEvent, value); }
+        }
+
+
         #region Variablen
 
         float prevTargetCurrent = (float)0.0;
@@ -93,6 +114,7 @@ namespace HMPSupply.components
         public gbVoltAndCurrent()
         {
             InitializeComponent();
+            buActivateChannel.Background = Utils.ColorUtilities.scbTurnOffCh;
         }
         #endregion
 
@@ -125,6 +147,42 @@ namespace HMPSupply.components
             get { return this.prevTargetVoltage; }
             set { this.prevTargetVoltage = value;}
         }
+        public bool IsChActive
+        {
+            get { return this.bChIsActive; }
+            set 
+            { 
+                this.bChIsActive = value;
+                if (this.bChIsActive == false)
+                {
+                    buActivateChannel.Background = Utils.ColorUtilities.scbTurnOffCh;
+                }
+                else
+                {
+                    buActivateChannel.Background = Utils.ColorUtilities.scbTurnOnCh;
+                }
+            }
+        }
+        public bool EnableOutput
+        {
+            get { return this.bChOutputEnabled; }
+            set 
+            { 
+                this.bChOutputEnabled = value;
+
+                if (this.bChOutputEnabled == false)
+                {
+                    buOutThisChannel.Background = (SolidColorBrush)Utils.ColorUtilities.scbTurnOff;
+                }
+                else 
+                {
+                    buOutThisChannel.Background = (SolidColorBrush)Utils.ColorUtilities.scbTurnOn;
+                }
+            }
+        }
+
+        
+
 
         public void DisableChannelEdition()
         {
@@ -148,6 +206,16 @@ namespace HMPSupply.components
         private void OnReadVoltageAndCurrentOnChannel(object sneder, RoutedEventArgs e)
         {
             RaiseEvent(new RoutedEventArgs(ReadVoltageAndCurrentOnChannelEvent));
+        }
+
+        private void OnEnableOnChannel(object sneder, RoutedEventArgs e)
+        {
+            RaiseEvent(new RoutedEventArgs(EnableChannelOnChannelEvent));
+        }
+
+        private void OnOutputOnChannel(object sneder, RoutedEventArgs e)
+        {
+            RaiseEvent(new RoutedEventArgs(EnableOutputOnChannelEvent));
         }
 
         private void buCHXX_Read_Volt_Curr_Click(object sender, RoutedEventArgs e)
@@ -405,6 +473,26 @@ namespace HMPSupply.components
                 rBuCHXX_InputCurr.IsChecked = true;
                 CHXX_InCurr.Text = string.Format("{0:N3}", targetCurrent);
             }
+        }
+
+        private void buActivateChannel_Click(object sender, RoutedEventArgs e)
+        {
+            IsChActive ^= true; //toogle value of bChIsActive see https://stackoverflow.com/questions/610916/easiest-way-to-flip-a-boolean-value
+            OnEnableOnChannel(null, null);
+        }
+
+        private void buOutThisChannel_Click(object sender, RoutedEventArgs e)
+        {
+            if (bChOutputEnabled == false && IsChActive)
+            {
+                EnableOutput = true;
+            }
+            else if (bChOutputEnabled && IsChActive)
+            {
+                EnableOutput = false;
+            }
+
+            OnOutputOnChannel(null, null);
         }
     }
 

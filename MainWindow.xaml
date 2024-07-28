@@ -5,18 +5,87 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HMPSupply" xmlns:components="clr-namespace:HMPSupply.components"
         mc:Ignorable="d"
-        Title="HMPPowerSupply" Height="556" Width="1027" WindowStartupLocation="CenterScreen" ResizeMode="CanResizeWithGrip" WindowStyle="ThreeDBorderWindow">
+        Title="HMPPowerSupply" Height="556" Width="987" WindowStartupLocation="CenterScreen" ResizeMode="CanResizeWithGrip" WindowStyle="ThreeDBorderWindow">
+    <Window.Resources>
+        <Style x:Key="FocusVisual">
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Rectangle Margin="2" StrokeDashArray="1 2" Stroke="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" SnapsToDevicePixels="true" StrokeThickness="1"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <SolidColorBrush x:Key="Button.Static.Background" Color="#FFDDDDDD"/>
+        <SolidColorBrush x:Key="Button.Static.Border" Color="#FF707070"/>
+        <SolidColorBrush x:Key="Button.MouseOver.Background" Color="#FFBEE6FD"/>
+        <SolidColorBrush x:Key="Button.MouseOver.Border" Color="#FF3C7FB1"/>
+        <SolidColorBrush x:Key="Button.Pressed.Background" Color="#FFC4E5F6"/>
+        <SolidColorBrush x:Key="Button.Pressed.Border" Color="#FF2C628B"/>
+        <SolidColorBrush x:Key="Button.Disabled.Background" Color="#FFF4F4F4"/>
+        <SolidColorBrush x:Key="Button.Disabled.Border" Color="#FFADB2B5"/>
+        <SolidColorBrush x:Key="Button.Disabled.Foreground" Color="#FF838383"/>
+        <Style x:Key="RoundedButtonStyle" TargetType="{x:Type Button}">
+            <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
+            <Setter Property="Background" Value="{StaticResource Button.Static.Background}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource Button.Static.Border}"/>
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="border" CornerRadius ="10" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" SnapsToDevicePixels="true">
+                            <ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsDefaulted" Value="true">
+                                <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="Background" TargetName="border" Value="{StaticResource Button.MouseOver.Background}"/>
+                                <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.MouseOver.Border}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="true">
+                                <Setter Property="Background" TargetName="border" Value="{StaticResource Button.Pressed.Background}"/>
+                                <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.Pressed.Border}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Background" TargetName="border" Value="{StaticResource Button.Disabled.Background}"/>
+                                <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.Disabled.Border}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="{StaticResource Button.Disabled.Foreground}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
     <Grid Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Margin="0,0,0,-35">
-        <Grid ShowGridLines="False" Height="507" VerticalAlignment="Top" Margin="-1,0,-1,0">
+        <Grid ShowGridLines="False" Height="553" VerticalAlignment="Top" Margin="-1,0,-1,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="225"></ColumnDefinition>
                 <ColumnDefinition Width="800"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition></RowDefinition>
-                <RowDefinition></RowDefinition>
+                <RowDefinition Height="20*"></RowDefinition>
+                <RowDefinition Height="262*"></RowDefinition>
+                <RowDefinition Height="271*"></RowDefinition>
             </Grid.RowDefinitions>
-            <StackPanel Height="268" Orientation="Vertical" Grid.Row="0" Grid.Column="0" VerticalAlignment="Top">
+            <Menu>
+                <MenuItem x:Name="miProperties" Header="Properties" Click="miProperties_Click">
+                </MenuItem>
+                <MenuItem x:Name="miAbout" Header="About" Click="miAbout_Click">
+                    <MenuItem Header="Author">
+                        <!--<MenuItem Header="File1"/>
+                        <MenuItem Header="File2"/>
+                        <MenuItem Header="File3"/>-->
+                    </MenuItem>
+                </MenuItem>
+            </Menu>
+            <StackPanel Height="268" Orientation="Vertical" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center">
                 <StackPanel Height="32" Orientation="Horizontal">
                     <Label   x:Name="laHost" Content="Host"        HorizontalAlignment="Left" Margin="10,8,0,0" VerticalAlignment="Top" Height="23" Width="35"/>
                     <TextBox x:Name="tbHost" Text="192.168.178.64" HorizontalAlignment="Left" Margin="14,13,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="98" Height="18"/>
@@ -27,18 +96,20 @@
                     <TextBox x:Name="tbPort" Text="5025"    HorizontalAlignment="Left" Margin="14,4,0,0" TextWrapping="Wrap"   VerticalAlignment="Top" Width="98" Height="18"/>
                     <Button x:Name="buConnect" Content="Connect" HorizontalAlignment="Left" VerticalAlignment="Top" Width="54" Click="buConnect_Click" Height="20" Margin="4,3,0,0"/>
                 </StackPanel>
-                <TextBox x:Name="tbSendTxt" HorizontalAlignment="Left" Margin="10,0,0,0" TextWrapping="Wrap" Text="write something to send" VerticalAlignment="Top" Height="96" Width="208"/>
+                <TextBox x:Name="tbSendTxt" HorizontalAlignment="Left" Margin="10,35,0,0" TextWrapping="Wrap" Text="write something to send" VerticalAlignment="Top" Height="96" Width="208"/>
                 <Button x:Name="buSend" Content="Send" HorizontalAlignment="Left" Margin="12,4,0,0" VerticalAlignment="Top" Width="54" Height="20"/>
             </StackPanel>
-            <StackPanel Height="202" Orientation="Horizontal" Grid.Row="0" Grid.Column="1" VerticalAlignment="Top">
-                <components:gbVoltAndCurrent x:Name="gbCH01" MainName="CH_01" SetCurrentOnChannel="OnSetCurrentOnCh01" ReadVoltageAndCurrentOnChannel="OnReadVoltageAndCurrentOnCH01"/>
+            <StackPanel Height="202" Orientation="Horizontal" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Margin="0,0,47,0">
+                <components:gbVoltAndCurrent x:Name="gbCH01" MainName="CH_01" SetCurrentOnChannel="OnSetCurrentOnCh01" ReadVoltageAndCurrentOnChannel="OnReadVoltageAndCurrentOnCH01" EnableCH_OnChannel="OnEnableCH01" EnableOutputOnChannel="OnOutputCH01" />
                 <components:gbVoltAndCurrent x:Name="gbCH02" MainName="CH_02"/>
                 <components:gbVoltAndCurrent x:Name="gbCH03" MainName="CH_03"/>
                 <components:gbVoltAndCurrent x:Name="gbCH04" MainName="CH_04"/>
+                <Button Style="{DynamicResource RoundedButtonStyle}" x:Name="buOutput" Content="Output" Height="24" Width="63" Margin="0,0,0,149" Click="buOutput_Click"/>
             </StackPanel>
-            <GroupBox x:Name="gbLog" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" Height="253" Header="Log" VerticalAlignment="Top" Width="699">
-                <StackPanel Height="231">
-                    <TextBox x:Name="tbStatus"  HorizontalAlignment="Left" TextWrapping="Wrap" Text="not yet sended" Width="687" Height="228" VerticalAlignment="Top"/>
+            <GroupBox x:Name="gbLog" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" Height="252" Header="Log" VerticalAlignment="Center" Width="740">
+                <StackPanel Height="231" Orientation="Horizontal">
+                    <TextBox x:Name="tbLogStatus" TextWrapping="Wrap" Text="not yet sended" Width="650" Height="228" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                    <Button x:Name="buClearLog" Content="Clear" HorizontalAlignment="Left" Margin="12,4,0,0" VerticalAlignment="Top" Width="54" Height="20" Click="buClearLog_Click"/>
                 </StackPanel>
             </GroupBox>
         </Grid>
