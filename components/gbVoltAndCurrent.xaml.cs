@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -181,9 +182,6 @@ namespace HMPSupply.components
             }
         }
 
-        
-
-
         public void DisableChannelEdition()
         {
             this.IsEnabled = false;
@@ -192,6 +190,11 @@ namespace HMPSupply.components
             this.buCHXX_Set_Volt_Curr.IsEnabled = false;
             this.gbCHXX_I.IsEnabled = false;
             this.gbCHXX_U.IsEnabled = false;
+        }
+
+        public void SetOutputButtonColorAsGray()
+        {
+            this.buOutThisChannel.Background = buOutThisChannel.Background = (SolidColorBrush)Utils.ColorUtilities.scbDisabled;
         }
 
         #endregion
@@ -221,37 +224,6 @@ namespace HMPSupply.components
         private void buCHXX_Read_Volt_Curr_Click(object sender, RoutedEventArgs e)
         {
             OnReadVoltageAndCurrentOnChannel(null, null);
-        }
-
-        private void cbCH01_Click(object sender, RoutedEventArgs e)
-        {
-            CheckBox cb = sender as CheckBox;
-            string checkState = string.Empty;
-            if (!cb.IsChecked.HasValue)
-            {
-                checkState = "Indeterminate";
-            }
-            else
-            {
-                checkState = (true == cb.IsChecked) ? "Checked" : "Unchecked";
-
-                if (!cbCHXX.IsChecked.Value)
-                {
-                    buCHXX_Read_Volt_Curr.IsEnabled = false;
-                    buCHXX_Set_Volt_Curr.IsEnabled = false;
-                    gbCHXX_U.IsEnabled = false;
-                    gbCHXX_I.IsEnabled = false;
-                }
-                else
-                {
-                    buCHXX_Read_Volt_Curr.IsEnabled = true;
-                    buCHXX_Set_Volt_Curr.IsEnabled = true;
-                    gbCHXX_U.IsEnabled = true;
-                    gbCHXX_I.IsEnabled = true;
-                }
-            }
-
-            Trace.WriteLine(string.Format("Click event on CH01: {0}", checkState));
         }
 
         private void buCHXX_Set_Volt_Curr_Click(object sender, RoutedEventArgs e)
@@ -493,6 +465,55 @@ namespace HMPSupply.components
             }
 
             OnOutputOnChannel(null, null);
+        }
+
+        private void cbCH01_Click(object sender, RoutedEventArgs e)
+        {
+            CheckBox cb = sender as CheckBox;
+            string checkState = string.Empty;
+            if (!cb.IsChecked.HasValue)
+            {
+                checkState = "Indeterminate";
+            }
+            else
+            {
+                checkState = (true == cb.IsChecked) ? "Checked" : "Unchecked";
+
+                if (!cbCHXX.IsChecked.Value)
+                {
+                    buCHXX_Read_Volt_Curr.IsEnabled = false;
+                    buCHXX_Set_Volt_Curr.IsEnabled = false;
+                    gbCHXX_U.IsEnabled = false;
+                    gbCHXX_I.IsEnabled = false;
+                    if (bChIsActive || bChOutputEnabled)
+                    {
+                        this.buActivateChannel.Click -= new System.Windows.RoutedEventHandler(this.buActivateChannel_Click);
+                        this.buOutThisChannel.Click -= new System.Windows.RoutedEventHandler(this.buOutThisChannel_Click);
+                    }
+
+                    if (!bChOutputEnabled)
+                    {
+                        SetOutputButtonColorAsGray();
+                    }
+
+                }
+                else
+                {
+                    buCHXX_Read_Volt_Curr.IsEnabled = true;
+                    buCHXX_Set_Volt_Curr.IsEnabled = true;
+                    gbCHXX_U.IsEnabled = true;
+                    gbCHXX_I.IsEnabled = true;
+                    buActivateChannel.IsEnabled = true;
+                    buOutThisChannel.IsEnabled = true;
+                    this.buActivateChannel.Click -= this.buActivateChannel_Click;
+                    this.buActivateChannel.Click += new System.Windows.RoutedEventHandler(this.buActivateChannel_Click);
+                    this.buOutThisChannel.Click -= this.buOutThisChannel_Click;
+                    this.buOutThisChannel.Click += new System.Windows.RoutedEventHandler(this.buOutThisChannel_Click);
+
+                }
+            }
+
+            Trace.WriteLine(string.Format("Click event on CH01: {0}", checkState));
         }
     }
 

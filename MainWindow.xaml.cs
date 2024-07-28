@@ -62,7 +62,36 @@ namespace HMPSupply
             }
             catch (Ivi.Driver.IOException ex)
             {
-                tbLogStatus.Text += "[ERROR] Cannot initialize the driver session.\nDetails:";
+                tbLogStatus.Text += "[ERROR] Cannot initialize the driver session.\n";
+                tbLogStatus.Text += (ex.Message + "\n");
+            }
+            catch (Ivi.Driver.OperationNotSupportedException ex)
+            {
+                tbLogStatus.Text += "[ERROR] Instrument doesn't support the function:\n";
+                tbLogStatus.Text += (ex.Message + "\n");
+            }
+
+            //when a task takes longer than the defined timeout
+            catch (Ivi.Driver.IOTimeoutException ex)
+            {
+                tbLogStatus.Text += "[ERROR] Operation took longer than the maximum defined time:\n";
+                tbLogStatus.Text += (ex.Message + "\n");
+            }
+            catch (Ivi.Driver.MaxTimeExceededException ex)
+            {
+                tbLogStatus.Text += "[ERROR] Operation took longer than the maximum defined time:\n";
+                tbLogStatus.Text += (ex.Message + "\n");
+            }
+            //if the instrument returns an error in the error queue
+            catch (Ivi.Driver.InstrumentStatusException ex)
+            {
+                tbLogStatus.Text += "[ERROR] Instrument system error occured:\n";
+                tbLogStatus.Text += (ex.Message + "\n");
+            }
+            //if the instrument returns an error in the error queue
+            catch (Ivi.Driver.SelectorNameException ex)
+            {
+                tbLogStatus.Text += "[ERROR] Invalid selector name used:\n";
                 tbLogStatus.Text += (ex.Message + "\n");
             }
         }
@@ -130,10 +159,45 @@ namespace HMPSupply
 
         private void DisableOutputButtonOnALLChannels()
         {
-            if (gbCH01.cbCHXX.IsEnabled == true) { gbCH01.EnableOutput = false; }
-            if (gbCH02.cbCHXX.IsEnabled == true) { gbCH02.EnableOutput = false; }
-            if (gbCH03.cbCHXX.IsEnabled == true) { gbCH03.EnableOutput = false; }
-            if (gbCH04.cbCHXX.IsEnabled == true) { gbCH04.EnableOutput = false; }
+            if (gbCH01.cbCHXX.IsEnabled == true) 
+            { 
+                gbCH01.EnableOutput = false;
+
+                if (gbCH01.cbCHXX.IsChecked == false) 
+                { 
+                    gbCH01.SetOutputButtonColorAsGray(); 
+                }
+            }
+
+            if (gbCH02.cbCHXX.IsEnabled == true)
+            {
+                gbCH02.EnableOutput = false;
+
+                if (gbCH02.cbCHXX.IsChecked == false)
+                {
+                    gbCH02.SetOutputButtonColorAsGray();
+                }
+            }
+
+            if (gbCH03.cbCHXX.IsEnabled == true)
+            {
+                gbCH03.EnableOutput = false;
+
+                if (gbCH03.cbCHXX.IsChecked == false)
+                {
+                    gbCH03.SetOutputButtonColorAsGray();
+                }
+            }
+
+            if (gbCH04.cbCHXX.IsEnabled == true)
+            {
+                gbCH04.EnableOutput = false;
+
+                if (gbCH04.cbCHXX.IsChecked == false)
+                {
+                    gbCH04.SetOutputButtonColorAsGray();
+                }
+            }
         }
 
 

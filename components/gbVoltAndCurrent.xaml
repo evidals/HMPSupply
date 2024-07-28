@@ -97,8 +97,8 @@
                     </GroupBox>
                 </StackPanel>
                 <StackPanel Height="20" Orientation="Horizontal">
-                    <Button Style="{DynamicResource RoundedButtonStyle}" x:Name="buActivateChannel" Content="{Binding MainName, ElementName=root}" Margin="4,0,0,0" Width="44" Height="20" Click="buActivateChannel_Click"/>
-                    <Button Style="{DynamicResource RoundedButtonStyle}" x:Name="buOutThisChannel" Content="OUT" Margin="4,0,0,0" Width="44" Height="20" Click="buOutThisChannel_Click"/>
+                    <Button Style="{DynamicResource RoundedButtonStyle}" x:Name="buActivateChannel" Content="{Binding MainName, ElementName=root}" Margin="4,0,0,0" Width="44" Height="20" Click="buActivateChannel_Click" IsEnabled="False"/>
+                    <Button Style="{DynamicResource RoundedButtonStyle}" x:Name="buOutThisChannel" Content="OUT" Margin="4,0,0,0" Width="44" Height="20" Click="buOutThisChannel_Click" IsEnabled="False"/>
                     <Button x:Name="buCHXX_Set_Volt_Curr" Content="Set" RenderTransformOrigin="-0.197,0.507" HorizontalAlignment="Left" Margin="8,0,0,0" Width="49" Click="buCHXX_Set_Volt_Curr_Click"/>
                 </StackPanel>
             </StackPanel>
