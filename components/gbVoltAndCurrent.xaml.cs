@@ -407,8 +407,9 @@ namespace HMPSupply.components
             else 
             {
                 eSelectedVoltage = eSEL_U.IS_UserInput;
-                rBuCHXX_InputVol.IsChecked = true;
-                CHXX_InVol.Text = string.Format("{0:N3}", targetVoltage);
+                float aux_float = TargetVoltage;
+                CHXX_InVol.Text = string.Format("{0:N3}", (float)aux_float);
+                rBuCHXX_InputVol.IsChecked = true;  //this triggers the event: buCHXX_Set_Volt_Curr_Click 
             }
         }
 
