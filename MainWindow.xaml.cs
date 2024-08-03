@@ -33,6 +33,11 @@ namespace HMPSupply
         static bool DO_NOT_RESET = false;
         Hmp4000 driver;
         static bool bOutputActive = false;
+        const string CH01_NAME = "CH_01";
+        const string CH02_NAME = "CH_02";
+        const string CH03_NAME = "CH_03";
+        const string CH04_NAME = "CH_04";
+        //driver.System.SystemRemoteMix();
 
         public MainWindow()
         {
@@ -147,10 +152,10 @@ namespace HMPSupply
 
         private void ReadAllChannels()
         {
-            this.OnReadVoltageAndCurrentOnCH01(null, null);
-            this.OnReadVoltageAndCurrentOnCH02(null, null);
-            this.OnReadVoltageAndCurrentOnCH03(null, null);
-            this.OnReadVoltageAndCurrentOnCH04(null, null);
+            this.OnReadVoltageAndCurrentOnCHXX(this.gbCH01, null);
+            this.OnReadVoltageAndCurrentOnCHXX(this.gbCH02, null);
+            this.OnReadVoltageAndCurrentOnCHXX(this.gbCH03, null);
+            this.OnReadVoltageAndCurrentOnCHXX(this.gbCH04, null);
         }
 
         private void EnableOutputButtonOnChannelIfIsSelected()
@@ -163,13 +168,13 @@ namespace HMPSupply
 
         private void DisableOutputButtonOnALLChannels()
         {
-            if (gbCH01.cbCHXX.IsEnabled == true) 
-            { 
+            if (gbCH01.cbCHXX.IsEnabled == true)
+            {
                 gbCH01.EnableOutput = false;
 
-                if (gbCH01.cbCHXX.IsChecked == false) 
-                { 
-                    gbCH01.SetOutputButtonColorAsGray(); 
+                if (gbCH01.cbCHXX.IsChecked == false)
+                {
+                    gbCH01.SetOutputButtonColorAsGray();
                 }
             }
 
@@ -245,13 +250,15 @@ namespace HMPSupply
 
         private void buOutput_Click(object sender, RoutedEventArgs e)
         {
-            bOutputActive ^= true; //toogle value
+            bool bAtLeasOneChannelIsSelected = gbCH01.IsChActive || gbCH02.IsChActive || gbCH03.IsChActive || gbCH04.IsChActive;
 
-            if (!gbCH01.IsChActive)
+            if (!bAtLeasOneChannelIsSelected)
             {
                 tbLogStatus.Text += ("[INFO] Select at least one channel, then press output.\n");
                 return;
             }
+
+            bOutputActive ^= true; //toogle value
 
             if (bOutputActive == true)
             {
@@ -300,115 +307,207 @@ namespace HMPSupply
             aboutWindow.Show();
         }
 
+        private Channel IdentifyChannel(string channelName)
+        {
+            Channel result = Channel.NotUsed;
+
+            if ( String.IsNullOrEmpty(channelName) )
+            {
+                result = Channel.NotUsed;
+            }
+
+            if      ( String.Equals(channelName, CH01_NAME) ) { result = Channel.Channel1; }
+            else if ( String.Equals(channelName, CH02_NAME) ) { result = Channel.Channel2; }
+            else if ( String.Equals(channelName, CH03_NAME) ) { result = Channel.Channel3; }
+            else if ( String.Equals(channelName, CH04_NAME) ) { result = Channel.Channel4; }
+            else                                              { result = Channel.NotUsed;  }
+
+            return result;
+        }
+
+        private void SelectChannelOnPowerSupply(Channel eCH)
+        {
+            switch (eCH)
+            {
+                case Channel.Channel1:
+                    driver.BasicOperation.SelectedChannel = Output.Channel1;
+                    break;
+
+                case Channel.Channel2:
+                    driver.BasicOperation.SelectedChannel = Output.Channel2;
+                    break;
+
+                case Channel.Channel3:
+                    driver.BasicOperation.SelectedChannel = Output.Channel3;
+                    break;
+
+                case Channel.Channel4:
+                    driver.BasicOperation.SelectedChannel = Output.Channel4;
+                    break;
+
+                case Channel.NotUsed:
+                    break;
+            }
+        }
+
+        private Output SelectOutputChannelOnPowerSupply(Channel eCH)
+        {
+            Output outputChannel = Output.Channel1;
+           
+            switch (eCH)
+            {
+                case Channel.Channel1:
+                    outputChannel = Output.Channel1;
+                    break;
+
+                case Channel.Channel2:
+                    outputChannel = Output.Channel2;
+                    break;
+
+                case Channel.Channel3:
+                    outputChannel = Output.Channel3;
+                    break;
+
+                case Channel.Channel4:
+                    outputChannel = Output.Channel4;
+                    break;
+
+                case Channel.NotUsed:
+                    outputChannel = Output.Channel1;
+                    break;
+            }
+
+            return outputChannel;
+        }
+
         /*THE FOLLOWING EVENTS SHOULD BE EQUAL FOR EACH GROUPBOX*/
+        #region Events GroupBox CHANNEL XX
 
-        #region Events Groupbox CHANNEL 01
-
-        private void OnSetCurrentOnCH01(object sender, RoutedEventArgs e)
+        private void OnSetCurrentOnCHXX(object sender, RoutedEventArgs e)
         {
-            driver.BasicOperation.SelectedChannel = Output.Channel1;
+            gbVoltAndCurrent gbCHXX = sender as gbVoltAndCurrent;
 
-            bool bChangedVoltage = !(MathUtilities.ApproximatelyEqualEpsilon(gbCH01.PrevTargetVoltage, gbCH01.TargetVoltage, gbCH01.Delta));
-            bool bChangedCurrent = !(MathUtilities.ApproximatelyEqualEpsilon(gbCH01.PrevTargetCurrent, gbCH01.TargetCurrent, gbCH01.Delta));
+            if (gbCHXX == null)
+            {
+                return;
+            }
+
+            Channel eCH = IdentifyChannel(gbCHXX.MainName);
+
+            this.SelectChannelOnPowerSupply(eCH);
+
+            bool bChangedVoltage = !(MathUtilities.ApproximatelyEqualEpsilon(gbCHXX.PrevTargetVoltage, gbCHXX.TargetVoltage, gbCHXX.Delta));
+            bool bChangedCurrent = !(MathUtilities.ApproximatelyEqualEpsilon(gbCHXX.PrevTargetCurrent, gbCHXX.TargetCurrent, gbCHXX.Delta));
 
             if (!bChangedVoltage && !bChangedCurrent)
             {
                 return;
             }
 
+            // SET VOLTAGE IF NECESSARY
             if (bChangedVoltage)
             {
-                driver.VoltageAndCurrent.OutputVoltageLevel = (double)gbCH01.TargetVoltage;
-                if (false == MathUtilities.ApproximatelyEqualEpsilon(gbCH01.TargetVoltage, (float)driver.VoltageAndCurrent.OutputVoltageLevel, gbCH01.Delta))
+                driver.VoltageAndCurrent.OutputVoltageLevel = (double)gbCHXX.TargetVoltage;
+                if (false == MathUtilities.ApproximatelyEqualEpsilon(gbCHXX.TargetVoltage, (float)driver.VoltageAndCurrent.OutputVoltageLevel, gbCHXX.Delta))
                 {
                     //max.power have been exceed 160W max.
-                    gbCH01.PrevTargetVoltage = gbCH01.TargetVoltage;
-                    gbCH01.TargetVoltage = (float)driver.VoltageAndCurrent.OutputVoltageLevel;
-                    tbLogStatus.Text += "[RE-SIZED]Max.power have been exceed. HMP4040 is 160W max.\n";
+                    gbCHXX.PrevTargetVoltage = gbCHXX.TargetVoltage;
+                    gbCHXX.TargetVoltage = (float)driver.VoltageAndCurrent.OutputVoltageLevel;
+                    tbLogStatus.Text += "[RE-SIZED]Max.power on" + gbCHXX.MainName + "have been exceed. HMP4040 is 160W max.\n";
                 }
                 else
                 {
-                    gbCH01.PrevTargetVoltage = gbCH01.TargetVoltage;
+                    gbCHXX.PrevTargetVoltage = gbCHXX.TargetVoltage;
                 }
 
-                gbCH01.UpdateSelectedVoltage();
+                gbCHXX.UpdateSelectedVoltage();
             }
 
+            // SET CURRENT IF NECESSARY
             if (bChangedCurrent)
             {
-                driver.VoltageAndCurrent.OutputCurrentLevel = (double)gbCH01.TargetCurrent;
-                if (false == MathUtilities.ApproximatelyEqualEpsilon(gbCH01.TargetCurrent, (float)driver.VoltageAndCurrent.OutputCurrentLevel, gbCH01.Delta))
+                driver.VoltageAndCurrent.OutputCurrentLevel = (double)gbCHXX.TargetCurrent;
+                if (false == MathUtilities.ApproximatelyEqualEpsilon(gbCHXX.TargetCurrent, (float)driver.VoltageAndCurrent.OutputCurrentLevel, gbCHXX.Delta))
                 {
                     //max.power have been exceed 160W max.
-                    gbCH01.PrevTargetCurrent = gbCH01.TargetCurrent;
-                    gbCH01.TargetCurrent = (float)driver.VoltageAndCurrent.OutputCurrentLevel;
-                    tbLogStatus.Text += "[RE-SIZED]Max.power have been exceed. HMP4040 is 160W max.\n";
+                    gbCHXX.PrevTargetCurrent = gbCHXX.TargetCurrent;
+                    gbCHXX.TargetCurrent = (float)driver.VoltageAndCurrent.OutputCurrentLevel;
+                    tbLogStatus.Text += "[RE-SIZED]Max.power on " + gbCHXX.MainName + "have been exceed. HMP4040 is 160W max.\n";
                 }
                 else
                 {
-                    gbCH01.PrevTargetCurrent = gbCH01.TargetCurrent;
+                    gbCHXX.PrevTargetCurrent = gbCHXX.TargetCurrent;
                 }
 
-                gbCH01.UpdateSelectedCurrent();
+                gbCHXX.UpdateSelectedCurrent();
             }
-            driver.BasicOperation.SelectedChannel = Output.Channel1;
+
+            this.SelectChannelOnPowerSupply(eCH);
         }
 
-        private void OnReadVoltageAndCurrentOnCH01(object sender, RoutedEventArgs e)
+        private void OnEnableCHXX(object sender, RoutedEventArgs e)
         {
-            bool bChangedVoltage = !(MathUtilities.ApproximatelyEqualEpsilon(gbCH01.TargetVoltage, (float)driver.VoltageAndCurrent.OutputVoltageLevel, gbCH01.Delta));
-            bool bChangedCurrent = !(MathUtilities.ApproximatelyEqualEpsilon(gbCH01.TargetCurrent, (float)driver.VoltageAndCurrent.OutputCurrentLevel, gbCH01.Delta));
+            gbVoltAndCurrent gbCHXX = sender as gbVoltAndCurrent;
 
-            if(bChangedVoltage) 
+            if (gbCHXX == null)
             {
-                Output aux_currentChannel = driver.BasicOperation.SelectedChannel;
-                driver.BasicOperation.SelectedChannel = Output.Channel1;
-                gbCH01.TargetVoltage = (float)driver.VoltageAndCurrent.OutputVoltageLevel;
-                gbCH01.UpdateSelectedVoltage();
-                driver.BasicOperation.SelectedChannel = aux_currentChannel;
-
-            }
-            if (bChangedCurrent)
-            {
-                Output aux_currentChannel = driver.BasicOperation.SelectedChannel;
-                driver.BasicOperation.SelectedChannel = Output.Channel1;
-                gbCH01.TargetCurrent = (float)driver.VoltageAndCurrent.OutputCurrentLevel;
-                gbCH01.UpdateSelectedCurrent();
-                driver.BasicOperation.SelectedChannel = aux_currentChannel;
-            }
-
-        }
-
-        private void OnEnableCH01(object sender, RoutedEventArgs e)
-        {
-            if(gbCH01.IsChActive)
-            {
-                driver.BasicOperation.SelectedChannel = Output.Channel1;
-                driver.BasicOperation.ChannelOnlyEnabled = true;
-            }
-            else
-            {
-                driver.BasicOperation.SelectedChannel = Output.Channel1;
-                driver.BasicOperation.ChannelOnlyEnabled = false;
-            }
-            
-        }
-
-        private void OnOutputCH01(object sender, RoutedEventArgs e)
-        {
-            if (!gbCH01.IsChActive)
-            {
-                tbLogStatus.Text += ("[INFO] Select first the button CH01, then press output.\n");
                 return;
             }
 
-            if (!gbCH01.EnableOutput)
+            if (!gbCHXX.cbCHXX.IsChecked == true)
+            {
+                tbLogStatus.Text += ("[INFO] Select the checkbox on " + gbCHXX.MainName + ".\n");
+                return;
+            }
+
+            Channel eCH = IdentifyChannel(gbCHXX.MainName);
+
+            if (gbCHXX.IsChActive)
+            {
+                this.SelectChannelOnPowerSupply(eCH);
+                driver.BasicOperation.ChannelOnlyEnabled = true;
+
+                if (bOutputActive == true)
+                {
+                    gbCHXX.EnableOutput = true;
+                }
+            }
+            else
+            {
+                this.SelectChannelOnPowerSupply(eCH);
+                driver.BasicOperation.ChannelOnlyEnabled = false;
+                gbCHXX.EnableOutput = false;
+            }
+
+        }
+
+        private void OnOutputCHXX(object sender, RoutedEventArgs e)
+        {
+            gbVoltAndCurrent gbCHXX = sender as gbVoltAndCurrent;
+
+            if (gbCHXX == null)
+            {
+                return;
+            }
+
+            if (!gbCHXX.IsChActive && !gbCHXX.EnableOutput)
+            {
+                //TODO: remove the "_" in MainName
+                string channelName = gbCHXX.MainName.Trim(new char[] { '_' });
+                tbLogStatus.Text += ("[INFO] Select first the button" + channelName + ", then press output.\n");
+                return;
+            }
+
+            Channel eCH = IdentifyChannel(gbCHXX.MainName);
+
+            if (!gbCHXX.EnableOutput)
             {
                 try
                 {
+                    this.SelectChannelOnPowerSupply(eCH);
                     driver.BasicOperation.OutputEnabled = false;
-                    gbCH01.IsChActive = false;
-                    OnEnableCH01(null, null);
+                    gbCHXX.IsChActive = false;
+                    OnEnableCHXX(sender, e);
 
                     if (!(gbCH01.EnableOutput || gbCH02.EnableOutput || gbCH03.EnableOutput || gbCH04.EnableOutput))
                     {
@@ -420,460 +519,59 @@ namespace HMPSupply
                 }
                 catch (Ivi.Driver.IOException ex)
                 {
-                    tbLogStatus.Text += ("[ERROR]:" + ex.Message + "\n");
+                    tbLogStatus.Text += ("[ERROR][" + gbCHXX.MainName + "]" + ex.Message + "\n");
                 }
             }
             else
             {
                 try
                 {
+                    EnableOutputButtonOnChannelIfIsSelected();
                     driver.BasicOperation.OutputEnabled = true;
                     buOutput.Background = (SolidColorBrush)Utils.ColorUtilities.scbTurnOn;
                     bOutputActive = true;
                 }
                 catch (Ivi.Driver.IOException ex)
                 {
-                    tbLogStatus.Text += ("[ERROR]:" + ex.Message + "\n");
-                }
-                //[TODO] Check if other channels have EnableOutput == true, if not deactivate master output. 
-
-            }
-        }
-
-        #endregion
-
-        #region Events Groupbox CHANNEL 02
-
-        private void OnSetCurrentOnCH02(object sender, RoutedEventArgs e)
-        {
-            driver.BasicOperation.SelectedChannel = Output.Channel1;
-
-            bool bChangedVoltage = !(MathUtilities.ApproximatelyEqualEpsilon(gbCH02.PrevTargetVoltage, gbCH02.TargetVoltage, gbCH02.Delta));
-            bool bChangedCurrent = !(MathUtilities.ApproximatelyEqualEpsilon(gbCH02.PrevTargetCurrent, gbCH02.TargetCurrent, gbCH02.Delta));
-
-            if (!bChangedVoltage && !bChangedCurrent)
-            {
-                return;
-            }
-
-            if (bChangedVoltage)
-            {
-                driver.VoltageAndCurrent.OutputVoltageLevel = (double)gbCH02.TargetVoltage;
-                if (false == MathUtilities.ApproximatelyEqualEpsilon(gbCH02.TargetVoltage, (float)driver.VoltageAndCurrent.OutputVoltageLevel, gbCH02.Delta))
-                {
-                    //max.power have been exceed 160W max.
-                    gbCH02.PrevTargetVoltage = gbCH02.TargetVoltage;
-                    gbCH02.TargetVoltage = (float)driver.VoltageAndCurrent.OutputVoltageLevel;
-                    tbLogStatus.Text += "[RE-SIZED]Max.power have been exceed. HMP4040 is 160W max.\n";
-                }
-                else
-                {
-                    gbCH02.PrevTargetVoltage = gbCH02.TargetVoltage;
-                }
-
-                gbCH02.UpdateSelectedVoltage();
-            }
-
-            if (bChangedCurrent)
-            {
-                driver.VoltageAndCurrent.OutputCurrentLevel = (double)gbCH02.TargetCurrent;
-                if (false == MathUtilities.ApproximatelyEqualEpsilon(gbCH02.TargetCurrent, (float)driver.VoltageAndCurrent.OutputCurrentLevel, gbCH02.Delta))
-                {
-                    //max.power have been exceed 160W max.
-                    gbCH02.PrevTargetCurrent = gbCH02.TargetCurrent;
-                    gbCH02.TargetCurrent = (float)driver.VoltageAndCurrent.OutputCurrentLevel;
-                    tbLogStatus.Text += "[RE-SIZED]Max.power have been exceed. HMP4040 is 160W max.\n";
-                }
-                else
-                {
-                    gbCH02.PrevTargetCurrent = gbCH02.TargetCurrent;
-                }
-
-                gbCH02.UpdateSelectedCurrent();
-            }
-            driver.BasicOperation.SelectedChannel = Output.Channel1;
-        }
-
-        private void OnReadVoltageAndCurrentOnCH02(object sender, RoutedEventArgs e)
-        {
-            bool bChangedVoltage = !(MathUtilities.ApproximatelyEqualEpsilon(gbCH02.TargetVoltage, (float)driver.VoltageAndCurrent.OutputVoltageLevel, gbCH02.Delta));
-            bool bChangedCurrent = !(MathUtilities.ApproximatelyEqualEpsilon(gbCH02.TargetCurrent, (float)driver.VoltageAndCurrent.OutputCurrentLevel, gbCH02.Delta));
-
-            if (bChangedVoltage)
-            {
-                Output aux_currentChannel = driver.BasicOperation.SelectedChannel;
-                driver.BasicOperation.SelectedChannel = Output.Channel2;
-
-                try
-                {
-                    double aux_double = driver.VoltageAndCurrent.OutputVoltageLevel;
-                    gbCH02.TargetVoltage = (float)aux_double;
-                    while (!(MathUtilities.ApproximatelyEqualEpsilon(gbCH02.TargetVoltage, (float)aux_double, gbCH02.Delta)))
-                    {
-                        gbCH02.TargetVoltage = (float)aux_double;
-                    }
-
-                }
-                catch (Ivi.Driver.IOException ex)
-                {
-                    tbLogStatus.Text += ("[ERROR]:" + ex.Message + "\n");
-                }
-                
-                gbCH02.UpdateSelectedVoltage();
-                driver.BasicOperation.SelectedChannel = aux_currentChannel;
-
-            }
-            if (bChangedCurrent)
-            {
-                Output aux_currentChannel = driver.BasicOperation.SelectedChannel;
-                driver.BasicOperation.SelectedChannel = Output.Channel2;
-                gbCH02.TargetCurrent = (float)driver.VoltageAndCurrent.OutputCurrentLevel;
-                gbCH02.UpdateSelectedCurrent();
-                driver.BasicOperation.SelectedChannel = aux_currentChannel;
-            }
-
-        }
-
-        private void OnEnableCH02(object sender, RoutedEventArgs e)
-        {
-            if (gbCH02.IsChActive)
-            {
-                driver.BasicOperation.SelectedChannel = Output.Channel1;
-                driver.BasicOperation.ChannelOnlyEnabled = true;
-            }
-            else
-            {
-                driver.BasicOperation.SelectedChannel = Output.Channel1;
-                driver.BasicOperation.ChannelOnlyEnabled = false;
-            }
-
-        }
-
-        private void OnOutputCH02(object sender, RoutedEventArgs e)
-        {
-            if (!gbCH02.IsChActive)
-            {
-                tbLogStatus.Text += ("[INFO] Select first the button CH02, then press output.\n");
-                return;
-            }
-
-            if (!gbCH02.EnableOutput)
-            {
-                try
-                {
-                    driver.BasicOperation.OutputEnabled = false;
-                    gbCH02.IsChActive = false;
-                    OnEnableCH02(null, null);
-
-                    if (!(gbCH01.EnableOutput || gbCH02.EnableOutput || gbCH03.EnableOutput || gbCH04.EnableOutput))
-                    {
-                        driver.BasicOperation.MasterEnabled = false;
-                        buOutput.Background = (SolidColorBrush)Utils.ColorUtilities.scbTurnOff;
-                        bOutputActive = false;
-                    }
-
-                }
-                catch (Ivi.Driver.IOException ex)
-                {
-                    tbLogStatus.Text += ("[ERROR]:" + ex.Message + "\n");
-                }
-            }
-            else
-            {
-                try
-                {
-                    driver.BasicOperation.OutputEnabled = true;
-                    buOutput.Background = (SolidColorBrush)Utils.ColorUtilities.scbTurnOn;
-                    bOutputActive = true;
-                }
-                catch (Ivi.Driver.IOException ex)
-                {
-                    tbLogStatus.Text += ("[ERROR]:" + ex.Message + "\n");
-                }
-                //[TODO] Check if other channels have EnableOutput == true, if not deactivate master output. 
-
-            }
-        }
-
-        #endregion
-
-        #region Events Groupbox CHANNEL 03
-
-        private void OnSetCurrentOnCH03(object sender, RoutedEventArgs e)
-        {
-            driver.BasicOperation.SelectedChannel = Output.Channel1;
-
-            bool bChangedVoltage = !(MathUtilities.ApproximatelyEqualEpsilon(gbCH03.PrevTargetVoltage, gbCH03.TargetVoltage, gbCH03.Delta));
-            bool bChangedCurrent = !(MathUtilities.ApproximatelyEqualEpsilon(gbCH03.PrevTargetCurrent, gbCH03.TargetCurrent, gbCH03.Delta));
-
-            if (!bChangedVoltage && !bChangedCurrent)
-            {
-                return;
-            }
-
-            if (bChangedVoltage)
-            {
-                driver.VoltageAndCurrent.OutputVoltageLevel = (double)gbCH03.TargetVoltage;
-                if (false == MathUtilities.ApproximatelyEqualEpsilon(gbCH03.TargetVoltage, (float)driver.VoltageAndCurrent.OutputVoltageLevel, gbCH03.Delta))
-                {
-                    //max.power have been exceed 160W max.
-                    gbCH03.PrevTargetVoltage = gbCH03.TargetVoltage;
-                    gbCH03.TargetVoltage = (float)driver.VoltageAndCurrent.OutputVoltageLevel;
-                    tbLogStatus.Text += "[RE-SIZED]Max.power have been exceed. HMP4040 is 160W max.\n";
-                }
-                else
-                {
-                    gbCH03.PrevTargetVoltage = gbCH03.TargetVoltage;
-                }
-
-                gbCH03.UpdateSelectedVoltage();
-            }
-
-            if (bChangedCurrent)
-            {
-                driver.VoltageAndCurrent.OutputCurrentLevel = (double)gbCH03.TargetCurrent;
-                if (false == MathUtilities.ApproximatelyEqualEpsilon(gbCH03.TargetCurrent, (float)driver.VoltageAndCurrent.OutputCurrentLevel, gbCH03.Delta))
-                {
-                    //max.power have been exceed 160W max.
-                    gbCH03.PrevTargetCurrent = gbCH03.TargetCurrent;
-                    gbCH03.TargetCurrent = (float)driver.VoltageAndCurrent.OutputCurrentLevel;
-                    tbLogStatus.Text += "[RE-SIZED]Max.power have been exceed. HMP4040 is 160W max.\n";
-                }
-                else
-                {
-                    gbCH03.PrevTargetCurrent = gbCH03.TargetCurrent;
-                }
-
-                gbCH03.UpdateSelectedCurrent();
-            }
-            driver.BasicOperation.SelectedChannel = Output.Channel1;
-        }
-
-        private void OnReadVoltageAndCurrentOnCH03(object sender, RoutedEventArgs e)
-        {
-            bool bChangedVoltage = !(MathUtilities.ApproximatelyEqualEpsilon(gbCH03.TargetVoltage, (float)driver.VoltageAndCurrent.OutputVoltageLevel, gbCH03.Delta));
-            bool bChangedCurrent = !(MathUtilities.ApproximatelyEqualEpsilon(gbCH03.TargetCurrent, (float)driver.VoltageAndCurrent.OutputCurrentLevel, gbCH03.Delta));
-
-            if (bChangedVoltage)
-            {
-                Output aux_currentChannel = driver.BasicOperation.SelectedChannel;
-                driver.BasicOperation.SelectedChannel = Output.Channel3;
-                gbCH03.TargetVoltage = (float)driver.VoltageAndCurrent.OutputVoltageLevel;
-                gbCH03.UpdateSelectedVoltage();
-                driver.BasicOperation.SelectedChannel = aux_currentChannel;
-
-            }
-            if (bChangedCurrent)
-            {
-                Output aux_currentChannel = driver.BasicOperation.SelectedChannel;
-                driver.BasicOperation.SelectedChannel = Output.Channel3;
-                gbCH03.TargetCurrent = (float)driver.VoltageAndCurrent.OutputCurrentLevel;
-                gbCH03.UpdateSelectedCurrent();
-                driver.BasicOperation.SelectedChannel = aux_currentChannel;
-            }
-
-        }
-
-        private void OnEnableCH03(object sender, RoutedEventArgs e)
-        {
-            if (gbCH03.IsChActive)
-            {
-                driver.BasicOperation.SelectedChannel = Output.Channel1;
-                driver.BasicOperation.ChannelOnlyEnabled = true;
-            }
-            else
-            {
-                driver.BasicOperation.SelectedChannel = Output.Channel1;
-                driver.BasicOperation.ChannelOnlyEnabled = false;
-            }
-
-        }
-
-        private void OnOutputCH03(object sender, RoutedEventArgs e)
-        {
-            if (!gbCH03.IsChActive)
-            {
-                tbLogStatus.Text += ("[INFO] Select first the button CH03, then press output.\n");
-                return;
-            }
-
-            if (!gbCH03.EnableOutput)
-            {
-                try
-                {
-                    driver.BasicOperation.OutputEnabled = false;
-                    gbCH03.IsChActive = false;
-                    OnEnableCH03(null, null);
-
-                    if (!(gbCH01.EnableOutput || gbCH02.EnableOutput || gbCH03.EnableOutput || gbCH04.EnableOutput))
-                    {
-                        driver.BasicOperation.MasterEnabled = false;
-                        buOutput.Background = (SolidColorBrush)Utils.ColorUtilities.scbTurnOff;
-                        bOutputActive = false;
-                    }
-
-                }
-                catch (Ivi.Driver.IOException ex)
-                {
-                    tbLogStatus.Text += ("[ERROR]:" + ex.Message + "\n");
-                }
-            }
-            else
-            {
-                try
-                {
-                    driver.BasicOperation.OutputEnabled = true;
-                    buOutput.Background = (SolidColorBrush)Utils.ColorUtilities.scbTurnOn;
-                    bOutputActive = true;
-                }
-                catch (Ivi.Driver.IOException ex)
-                {
-                    tbLogStatus.Text += ("[ERROR]:" + ex.Message + "\n");
+                    tbLogStatus.Text += ("[ERROR][" + gbCHXX.MainName + "]" + ex.Message + "\n");
                 }
                 //[TODO] Check if other channels have EnableOutput == true, if not deactivate master output. 
             }
         }
 
-        #endregion
-
-        #region Events Groupbox CHANNEL 04
-
-        private void OnSetCurrentOnCH04(object sender, RoutedEventArgs e)
+        private void OnReadVoltageAndCurrentOnCHXX(object sender, RoutedEventArgs e)
         {
-            driver.BasicOperation.SelectedChannel = Output.Channel1;
+            gbVoltAndCurrent gbCHXX = sender as gbVoltAndCurrent;
 
-            bool bChangedVoltage = !(MathUtilities.ApproximatelyEqualEpsilon(gbCH04.PrevTargetVoltage, gbCH04.TargetVoltage, gbCH04.Delta));
-            bool bChangedCurrent = !(MathUtilities.ApproximatelyEqualEpsilon(gbCH04.PrevTargetCurrent, gbCH04.TargetCurrent, gbCH04.Delta));
-
-            if (!bChangedVoltage && !bChangedCurrent)
+            if (gbCHXX == null)
             {
                 return;
             }
 
-            if (bChangedVoltage)
-            {
-                driver.VoltageAndCurrent.OutputVoltageLevel = (double)gbCH04.TargetVoltage;
-                if (false == MathUtilities.ApproximatelyEqualEpsilon(gbCH04.TargetVoltage, (float)driver.VoltageAndCurrent.OutputVoltageLevel, gbCH04.Delta))
-                {
-                    //max.power have been exceed 160W max.
-                    gbCH04.PrevTargetVoltage = gbCH04.TargetVoltage;
-                    gbCH04.TargetVoltage = (float)driver.VoltageAndCurrent.OutputVoltageLevel;
-                    tbLogStatus.Text += "[RE-SIZED]Max.power have been exceed. HMP4040 is 160W max.\n";
-                }
-                else
-                {
-                    gbCH04.PrevTargetVoltage = gbCH04.TargetVoltage;
-                }
+            Channel eCH = IdentifyChannel(gbCHXX.MainName);
 
-                gbCH04.UpdateSelectedVoltage();
-            }
-
-            if (bChangedCurrent)
-            {
-                driver.VoltageAndCurrent.OutputCurrentLevel = (double)gbCH04.TargetCurrent;
-                if (false == MathUtilities.ApproximatelyEqualEpsilon(gbCH04.TargetCurrent, (float)driver.VoltageAndCurrent.OutputCurrentLevel, gbCH04.Delta))
-                {
-                    //max.power have been exceed 160W max.
-                    gbCH04.PrevTargetCurrent = gbCH04.TargetCurrent;
-                    gbCH04.TargetCurrent = (float)driver.VoltageAndCurrent.OutputCurrentLevel;
-                    tbLogStatus.Text += "[RE-SIZED]Max.power have been exceed. HMP4040 is 160W max.\n";
-                }
-                else
-                {
-                    gbCH04.PrevTargetCurrent = gbCH04.TargetCurrent;
-                }
-
-                gbCH04.UpdateSelectedCurrent();
-            }
-            driver.BasicOperation.SelectedChannel = Output.Channel1;
-        }
-
-        private void OnReadVoltageAndCurrentOnCH04(object sender, RoutedEventArgs e)
-        {
-            bool bChangedVoltage = !(MathUtilities.ApproximatelyEqualEpsilon(gbCH04.TargetVoltage, (float)driver.VoltageAndCurrent.OutputVoltageLevel, gbCH04.Delta));
-            bool bChangedCurrent = !(MathUtilities.ApproximatelyEqualEpsilon(gbCH04.TargetCurrent, (float)driver.VoltageAndCurrent.OutputCurrentLevel, gbCH04.Delta));
+            bool bChangedVoltage = !(MathUtilities.ApproximatelyEqualEpsilon(gbCHXX.TargetVoltage, (float)driver.VoltageAndCurrent.OutputVoltageLevel, gbCHXX.Delta));
+            bool bChangedCurrent = !(MathUtilities.ApproximatelyEqualEpsilon(gbCHXX.TargetCurrent, (float)driver.VoltageAndCurrent.OutputCurrentLevel, gbCHXX.Delta));
 
             if (bChangedVoltage)
             {
                 Output aux_currentChannel = driver.BasicOperation.SelectedChannel;
-                driver.BasicOperation.SelectedChannel = Output.Channel4;
-                gbCH04.TargetVoltage = (float)driver.VoltageAndCurrent.OutputVoltageLevel;
-                gbCH04.UpdateSelectedVoltage();
+                driver.BasicOperation.SelectedChannel = SelectOutputChannelOnPowerSupply(eCH); // e.g. Output.Channel4;
+                gbCHXX.TargetVoltage = (float)driver.VoltageAndCurrent.OutputVoltageLevel;
+                gbCHXX.UpdateSelectedVoltage();
                 driver.BasicOperation.SelectedChannel = aux_currentChannel;
 
             }
             if (bChangedCurrent)
             {
                 Output aux_currentChannel = driver.BasicOperation.SelectedChannel;
-                driver.BasicOperation.SelectedChannel = Output.Channel4;
-                gbCH04.TargetCurrent = (float)driver.VoltageAndCurrent.OutputCurrentLevel;
-                gbCH04.UpdateSelectedCurrent();
+                driver.BasicOperation.SelectedChannel = SelectOutputChannelOnPowerSupply(eCH); // e.g. Output.Channel4;
+                gbCHXX.TargetCurrent = (float)driver.VoltageAndCurrent.OutputCurrentLevel;
+                gbCHXX.UpdateSelectedCurrent();
                 driver.BasicOperation.SelectedChannel = aux_currentChannel;
             }
 
         }
-
-        private void OnEnableCH04(object sender, RoutedEventArgs e)
-        {
-            if (gbCH04.IsChActive)
-            {
-                driver.BasicOperation.SelectedChannel = Output.Channel1;
-                driver.BasicOperation.ChannelOnlyEnabled = true;
-            }
-            else
-            {
-                driver.BasicOperation.SelectedChannel = Output.Channel1;
-                driver.BasicOperation.ChannelOnlyEnabled = false;
-            }
-
-        }
-
-        private void OnOutputCH04(object sender, RoutedEventArgs e)
-        {
-            if (!gbCH04.IsChActive)
-            {
-                tbLogStatus.Text += ("[INFO] Select first the button CH04, then press output.\n");
-                return;
-            }
-
-            if (!gbCH04.EnableOutput)
-            {
-                try
-                {
-                    driver.BasicOperation.OutputEnabled = false;
-                    gbCH04.IsChActive = false;
-                    OnEnableCH04(null, null);
-
-                    if (!(gbCH01.EnableOutput || gbCH02.EnableOutput || gbCH03.EnableOutput || gbCH04.EnableOutput))
-                    {
-                        driver.BasicOperation.MasterEnabled = false;
-                        buOutput.Background = (SolidColorBrush)Utils.ColorUtilities.scbTurnOff;
-                        bOutputActive = false;
-                    }
-
-                }
-                catch (Ivi.Driver.IOException ex)
-                {
-                    tbLogStatus.Text += ("[ERROR]:" + ex.Message + "\n");
-                }
-            }
-            else
-            {
-                try
-                {
-                    driver.BasicOperation.OutputEnabled = true;
-                    buOutput.Background = (SolidColorBrush)Utils.ColorUtilities.scbTurnOn;
-                    bOutputActive = true;
-                }
-                catch (Ivi.Driver.IOException ex)
-                {
-                    tbLogStatus.Text += ("[ERROR]:" + ex.Message + "\n");
-                }
-                //[TODO] Check if other channels have EnableOutput == true, if not deactivate master output. 
-            }
-        }
-
         #endregion
-
     }
 }

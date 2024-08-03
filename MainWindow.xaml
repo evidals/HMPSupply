@@ -100,10 +100,10 @@
                 <Button x:Name="buSend" Content="Send" HorizontalAlignment="Left" Margin="12,4,0,0" VerticalAlignment="Top" Width="54" Height="20"/>
             </StackPanel>
             <StackPanel Height="202" Orientation="Horizontal" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Margin="0,0,47,0">
-                <components:gbVoltAndCurrent x:Name="gbCH01" MainName="CH_01" SetCurrentOnChannel="OnSetCurrentOnCH01" ReadVoltageAndCurrentOnChannel="OnReadVoltageAndCurrentOnCH01" EnableCH_OnChannel="OnEnableCH01" EnableOutputOnChannel="OnOutputCH01" />
-                <components:gbVoltAndCurrent x:Name="gbCH02" MainName="CH_02" SetCurrentOnChannel="OnSetCurrentOnCH02" ReadVoltageAndCurrentOnChannel="OnReadVoltageAndCurrentOnCH02" EnableCH_OnChannel="OnEnableCH02" EnableOutputOnChannel="OnOutputCH02" />
-                <components:gbVoltAndCurrent x:Name="gbCH03" MainName="CH_03" SetCurrentOnChannel="OnSetCurrentOnCH03" ReadVoltageAndCurrentOnChannel="OnReadVoltageAndCurrentOnCH03" EnableCH_OnChannel="OnEnableCH03" EnableOutputOnChannel="OnOutputCH03"/>
-                <components:gbVoltAndCurrent x:Name="gbCH04" MainName="CH_04" SetCurrentOnChannel="OnSetCurrentOnCH04" ReadVoltageAndCurrentOnChannel="OnReadVoltageAndCurrentOnCH04" EnableCH_OnChannel="OnEnableCH04" EnableOutputOnChannel="OnOutputCH04"/>
+                <components:gbVoltAndCurrent x:Name="gbCH01" MainName="CH_01" SetCurrentOnChannel="OnSetCurrentOnCHXX" ReadVoltageAndCurrentOnChannel="OnReadVoltageAndCurrentOnCHXX" EnableCH_OnChannel="OnEnableCHXX" EnableOutputOnChannel="OnOutputCHXX" />
+                <components:gbVoltAndCurrent x:Name="gbCH02" MainName="CH_02" SetCurrentOnChannel="OnSetCurrentOnCHXX" ReadVoltageAndCurrentOnChannel="OnReadVoltageAndCurrentOnCHXX" EnableCH_OnChannel="OnEnableCHXX" EnableOutputOnChannel="OnOutputCHXX" />
+                <components:gbVoltAndCurrent x:Name="gbCH03" MainName="CH_03" SetCurrentOnChannel="OnSetCurrentOnCHXX" ReadVoltageAndCurrentOnChannel="OnReadVoltageAndCurrentOnCHXX" EnableCH_OnChannel="OnEnableCHXX" EnableOutputOnChannel="OnOutputCHXX"/>
+                <components:gbVoltAndCurrent x:Name="gbCH04" MainName="CH_04" SetCurrentOnChannel="OnSetCurrentOnCHXX" ReadVoltageAndCurrentOnChannel="OnReadVoltageAndCurrentOnCHXX" EnableCH_OnChannel="OnEnableCHXX" EnableOutputOnChannel="OnOutputCHXX"/>
                 <Button Style="{DynamicResource RoundedButtonStyle}" x:Name="buOutput" Content="Output" Height="24" Width="63" Margin="0,0,0,149" Click="buOutput_Click"/>
             </StackPanel>
             <GroupBox x:Name="gbLog" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" Height="252" Header="Log" VerticalAlignment="Center" Width="740">

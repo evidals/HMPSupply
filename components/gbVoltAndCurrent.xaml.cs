@@ -254,6 +254,8 @@ namespace HMPSupply.components
 
         #endregion
 
+        #region RadioButtons_VOLTAGE
+
         private void rBuCHXX_10V_Checked(object sender, RoutedEventArgs e)
         {
             if (rBuCHXX_10V.IsChecked == true)
@@ -314,6 +316,10 @@ namespace HMPSupply.components
                 }
             }
         }
+
+        #endregion
+
+        #region RadioButtons_CURRENT
 
         private void rBuCHXX_1A_Checked(object sender, RoutedEventArgs e)
         {
@@ -376,6 +382,8 @@ namespace HMPSupply.components
                 }
             }
         }
+
+        #endregion
 
         public void UpdateSelectedVoltage()
         {
@@ -450,7 +458,11 @@ namespace HMPSupply.components
 
         private void buActivateChannel_Click(object sender, RoutedEventArgs e)
         {
-            IsChActive ^= true; //toogle value of bChIsActive see https://stackoverflow.com/questions/610916/easiest-way-to-flip-a-boolean-value
+            if (cbCHXX.IsChecked == true)
+            {
+                IsChActive ^= true; //toogle value of bChIsActive see https://stackoverflow.com/questions/610916/easiest-way-to-flip-a-boolean-value
+            }
+            
             OnEnableOnChannel(null, null);
         }
 
@@ -514,7 +526,7 @@ namespace HMPSupply.components
                 }
             }
 
-            Trace.WriteLine(string.Format("Click event on CH01: {0}", checkState));
+            Trace.WriteLine(string.Format("Click event on " + this.MainName +": {0}", checkState));
         }
     }
 
